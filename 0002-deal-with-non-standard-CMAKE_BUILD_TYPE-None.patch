@@ -1,4 +1,4 @@
-From fd76e574b6fc2d950348b37f26d7c341c2937e74 Mon Sep 17 00:00:00 2001
+From 042f6532aefd057ed255a4768be1cf1e930ed846 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Christoph=20R=C3=B6smann?=
  <christoph.roesmann@tu-dortmund.de>
 Date: Mon, 25 Apr 2016 21:46:41 +0200
@@ -26,5 +26,5 @@ index 0f21a6c..b848286 100644
  
  # The library prefix
 -- 
-2.7.4
+2.17.0
 

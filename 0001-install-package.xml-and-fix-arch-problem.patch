@@ -1,4 +1,4 @@
-From c29b51f612ed0ea52f5f8da5d66079c3637cee45 Mon Sep 17 00:00:00 2001
+From 445181ab45f2785c8741ea7f2d5868fead902090 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Christoph=20R=C3=B6smann?=
  <christoph.roesmann@tu-dortmund.de>
 Date: Mon, 25 Apr 2016 21:45:02 +0200
@@ -31,5 +31,5 @@ index e432e0e..0f21a6c 100644
 +# Install catkin package.xml
 +install(FILES package.xml DESTINATION share/libg2o)
 -- 
-2.7.4
+2.17.0
 
