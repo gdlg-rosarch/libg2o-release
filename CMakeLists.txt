@@ -1,12 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET(CMAKE_LEGACY_CYGWIN_WIN32 0)
 
-# must go before the project command
-set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
-if(DEFINED CMAKE_BUILD_TYPE)
-  set_property( CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${CMAKE_CONFIGURATION_TYPES} )
-endif()
-
 PROJECT(g2o)
 
 # The library prefix
@@ -84,10 +78,15 @@ IF(WIN32)
     MESSAGE(STATUS "Compiling with MSVC")
     ADD_DEFINITIONS(-DNOMINMAX)
     ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
+
+    # exception handling
+    add_definitions("/EHsc")
+
     # SSE2 optimizations
     if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)  # No need to specify if building for x64 (actually, it generates an annoying warning)
         ADD_DEFINITIONS("/arch:SSE2")
     endif()
+    
     IF (BUILD_SHARED_LIBS)
       # disable warning on missing DLL interfaces
       ADD_DEFINITIONS("/wd4251")
@@ -95,7 +94,7 @@ IF(WIN32)
     # Fix issue: https://github.com/RainerKuemmerle/g2o/issues/66
     #            Link error LNK2005 due to duplicated symbols
     add_definitions("/Ob2")	
-	# Fix other stupid warnings:
+    # Fix other stupid warnings:
     add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)  # Avoid deprecated fprintf(), etc.
     add_definitions("/nologo")
     add_definitions("/wd4244") # Conversion from double -> int
@@ -195,7 +194,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
   OPTION (BUILD_WITH_MARCH_NATIVE "Build with \"-march native\"" ON)
   MESSAGE(STATUS "Compiling with GCC")
   
-  IF(NOT ${ARCH} MATCHES arm)
+  IF(NOT "${ARCH}" MATCHES "arm")
     # Generic settings for optimisation
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -msse4.2")
     SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -msse4.2")
@@ -210,10 +209,10 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
     #SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}") 
   #ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   # Linux
-  #IF(BUILD_WITH_MARCH_NATIVE AND NOT ${ARCH} MATCHES arm AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  #  SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
-  #  SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -march=native")
-  #ENDIF()
+  IF(BUILD_WITH_MARCH_NATIVE AND NOT "${ARCH}" MATCHES "arm" AND "${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
+    SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
+    SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -march=native")
+  ENDIF()
   # activate warnings !!!
   SET(g2o_C_FLAGS "${g2o_C_FLAGS} -Wall -W")
   SET(g2o_CXX_FLAGS "${g2o_CXX_FLAGS} -Wall -W")
@@ -268,6 +267,3 @@ INSTALL(FILES ${PROJECT_BINARY_DIR}/g2o/config.h DESTINATION ${CMAKE_INSTALL_PRE
 # Include the subdirectories
 ADD_SUBDIRECTORY(EXTERNAL)
 ADD_SUBDIRECTORY(g2o)
-
-# Install catkin package.xml
-install(FILES package.xml DESTINATION share/libg2o)
