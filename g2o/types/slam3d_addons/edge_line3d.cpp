@@ -24,24 +24,51 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "vertex_line3d.h"
+#include "edge_line3d.h"
 
-namespace g2o {
+namespace g2o
+{
 
-  bool VertexLine3D::read(std::istream& is) {
-    Vector6d lv;
-    for (int i=0; i<6; i++)
-      is >> lv[i];
-    setEstimate(Line3D(lv));
+  EdgeLine3D::EdgeLine3D() :
+    BaseBinaryEdge<6, Vector6d, VertexLine3D, VertexLine3D>()
+  {
+    _information.setIdentity();
+    _error.setZero();
+  }
+
+  bool EdgeLine3D::read(std::istream& is)
+  {
+    Vector6d  v;
+    for (int i = 0; i < 6; ++i)
+      is >> v[i];
+    setMeasurement(v);
+    for (int i = 0; i < 6; ++i)
+      for (int j = i; j < 6; ++j) {
+        is >> information()(i, j);
+        if (i != j)
+          information()(j, i) = information()(i, j);
+      }
     return true;
   }
 
-  bool VertexLine3D::write(std::ostream& os) const {
-    Vector6d lv=_estimate;
-    for (int i=0; i<6; i++){
-      os << lv[i] << " ";
-    }
+  bool EdgeLine3D::write(std::ostream& os) const
+  {
+    for (int i = 0; i < 6; ++i)
+      os << _measurement[i] << " ";
+    for (int i = 0; i < 6; ++i)
+      for (int j = i; j < 6; ++j)
+        os << " " << information()(i, j);
     return os.good();
   }
 
-}
+
+#ifndef NUMERIC_JACOBIAN_TWO_D_TYPES
+  void EdgeLine3D::linearizeOplus()
+  {
+    _jacobianOplusXi=-Matrix6d::Identity();
+    _jacobianOplusXj= Matrix6d::Identity();
+  }
+#endif
+
+
+} // end namespace

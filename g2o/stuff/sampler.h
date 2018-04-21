@@ -71,13 +71,6 @@ namespace g2o {
       }
       return _cholesky*s;
     }
-    bool seed(int s)
-    {
-      if (!_generator)
-        return false;
-      _generator->seed(s);
-      return true;
-    }
   protected:
     CovarianceType _cholesky;
     std::mt19937* _generator;
