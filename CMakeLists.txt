@@ -78,10 +78,15 @@ IF(WIN32)
     MESSAGE(STATUS "Compiling with MSVC")
     ADD_DEFINITIONS(-DNOMINMAX)
     ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
+
+    # exception handling
+    add_definitions("/EHsc")
+
     # SSE2 optimizations
     if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)  # No need to specify if building for x64 (actually, it generates an annoying warning)
         ADD_DEFINITIONS("/arch:SSE2")
     endif()
+    
     IF (BUILD_SHARED_LIBS)
       # disable warning on missing DLL interfaces
       ADD_DEFINITIONS("/wd4251")
@@ -89,7 +94,7 @@ IF(WIN32)
     # Fix issue: https://github.com/RainerKuemmerle/g2o/issues/66
     #            Link error LNK2005 due to duplicated symbols
     add_definitions("/Ob2")	
-	# Fix other stupid warnings:
+    # Fix other stupid warnings:
     add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)  # Avoid deprecated fprintf(), etc.
     add_definitions("/nologo")
     add_definitions("/wd4244") # Conversion from double -> int
@@ -189,7 +194,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
   OPTION (BUILD_WITH_MARCH_NATIVE "Build with \"-march native\"" ON)
   MESSAGE(STATUS "Compiling with GCC")
   
-  IF(NOT ${ARCH} MATCHES arm)
+  IF(NOT "${ARCH}" MATCHES "arm")
     # Generic settings for optimisation
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -msse4.2")
     SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -msse4.2")
@@ -204,7 +209,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
     #SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}") 
   #ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   # Linux
-  IF(BUILD_WITH_MARCH_NATIVE AND NOT ${ARCH} MATCHES arm AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  IF(BUILD_WITH_MARCH_NATIVE AND NOT "${ARCH}" MATCHES "arm" AND "${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
     SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -march=native")
   ENDIF()
@@ -243,16 +248,10 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${g2o_CXX_FLAGS}")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${g2o_C_FLAGS}")
 
 # Find Eigen3
-SET(EIGEN3_INCLUDE_DIR ${G2O_EIGEN3_INCLUDE})
-FIND_PACKAGE(Eigen3)
-IF(EIGEN3_FOUND)
-  SET(G2O_EIGEN3_INCLUDE ${EIGEN3_INCLUDE_DIR} CACHE PATH "Directory of Eigen3")
-ELSE(EIGEN3_FOUND)
-  SET(G2O_EIGEN3_INCLUDE "" CACHE PATH "Directory of Eigen3")
-ENDIF(EIGEN3_FOUND)
+FIND_PACKAGE(Eigen3 REQUIRED)
 
 # Set up the top-level include directories
-INCLUDE_DIRECTORIES(${g2o_SOURCE_DIR} ${G2O_EIGEN3_INCLUDE})
+INCLUDE_DIRECTORIES(${g2o_SOURCE_DIR} ${EIGEN3_INCLUDE_DIR})
 
 # Generate config.h
 SET(G2O_OPENGL_FOUND ${OPENGL_FOUND})
